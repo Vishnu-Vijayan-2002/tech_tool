@@ -1,11 +1,23 @@
+const http = require('http');
 const WebSocket = require('ws');
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
-const wss = new WebSocket.Server({
-  port: PORT,
+const server = http.createServer((req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/plain',
+  });
+
+  res.end('TeachSync WebSocket Server is running');
 });
 
+const wss = new WebSocket.Server({
+  server,
+});
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`TeachSync WebSocket server running on port ${PORT}`);
+});
 /*
   Room lifecycle:
 

@@ -1,4 +1,4 @@
-const WS_URL = 'wss://tech-tool.onrender.com';
+const WS_URL = 'tharoolla heee';
 
 let socket: WebSocket | null = null;
 

@@ -1,0 +1,451 @@
+/* ============================================
+   TeachSync PDF Viewer - Premium Design
+   Floating controls, minimal chrome
+   ============================================ */
+
+:root {
+  --brand-navy: #1a2537;
+  --brand-accent: #2563eb;
+  --brand-success: #10b981;
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --border-subtle: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+}
+
+.pdf-viewer-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #2d3e50;
+}
+
+.pdf-stage {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: var(--space-lg);
+  background: #2d3e50;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.pdf-stage::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.pdf-stage::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pdf-stage::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.pdf-stage::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.pdf-page-wrapper {
+  position: relative;
+  flex: 0 0 auto;
+  display: block;
+  width: max-content;
+  height: max-content;
+  margin: 0 auto;
+  background: var(--surface-primary);
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.pdf-canvas {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  background: var(--surface-primary);
+}
+
+.pdf-drawing-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ============================================
+   FLOATING SIDE DOCK
+   ============================================ */
+
+.pdf-side-menu {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 50;
+  width: 260px;
+  max-height: calc(100% - 32px);
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.2);
+  border-radius: var(--radius-2xl);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all var(--transition-base);
+}
+
+.pdf-side-menu-content {
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: var(--space-lg);
+  box-sizing: border-box;
+}
+
+.pdf-side-menu-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.pdf-side-menu-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pdf-side-menu-content::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.1);
+  border-radius: 3px;
+}
+
+.pdf-side-menu-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.pdf-menu-toggle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pdf-menu-toggle:hover {
+  background: var(--surface-secondary);
+  box-shadow: var(--shadow-lg);
+}
+
+.pdf-menu-toggle:active {
+  transform: scale(0.95);
+}
+
+.pdf-side-menu.is-collapsed {
+  width: 52px;
+  height: 52px;
+  max-height: 52px;
+  border-radius: var(--radius-xl);
+}
+
+.pdf-side-menu.is-collapsed .pdf-menu-toggle {
+  position: static;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  border-radius: var(--radius-xl);
+}
+
+.pdf-side-file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+  padding: 0 0 var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-lg);
+}
+
+.pdf-side-file-icon {
+  flex: 0 0 auto;
+  font-size: 20px;
+}
+
+.pdf-side-file-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pdf-sync-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--brand-success);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-lg);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.pdf-sync-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--brand-success);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pdf-side-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.pdf-side-label {
+  color: var(--text-tertiary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pdf-zoom-controls {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-secondary);
+}
+
+.pdf-control-button,
+.pdf-zoom-value,
+.pdf-fit-button {
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface-primary);
+  color: var(--text-primary);
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  transition: all var(--transition-base);
+}
+
+.pdf-control-button {
+  width: 36px;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pdf-zoom-value {
+  width: 100%;
+  font-size: 12px;
+}
+
+.pdf-fit-button {
+  width: 100%;
+  border: 1px solid var(--border-subtle);
+  font-size: 11px;
+}
+
+.pdf-control-button:hover:not(:disabled),
+.pdf-zoom-value:hover,
+.pdf-fit-button:hover {
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--brand-accent);
+}
+
+.pdf-control-button:active:not(:disabled),
+.pdf-zoom-value:active,
+.pdf-fit-button:active {
+  transform: scale(0.95);
+}
+
+.pdf-control-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pdf-side-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: var(--space-lg) 0;
+}
+
+.pdf-page-section {
+  margin-top: 0;
+}
+
+.pdf-page-number {
+  color: var(--text-primary);
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: var(--space-sm);
+}
+
+.pdf-page-number span {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pdf-page-live {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pdf-side-hint {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ============================================
+   STATUS
+   ============================================ */
+
+.pdf-loading,
+.pdf-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pdf-loading {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.pdf-error {
+  color: #fca5a5;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 900px) {
+  .pdf-side-menu {
+    top: 12px;
+    right: 12px;
+    width: 240px;
+  }
+
+  .pdf-stage {
+    padding: var(--space-md);
+  }
+}
+
+@media (max-width: 600px) {
+  .pdf-side-menu {
+    top: 8px;
+    right: 8px;
+    width: 220px;
+    max-height: calc(100% - 16px);
+  }
+
+  .pdf-side-menu-content {
+    padding: var(--space-md);
+  }
+
+  .pdf-side-file-name {
+    font-size: 12px;
+  }
+
+  .pdf-page-number {
+    font-size: 20px;
+  }
+
+  .pdf-stage {
+    padding: var(--space-sm);
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .pdf-side-menu {
+    max-height: 80%;
+  }
+
+  .pdf-stage {
+    padding: var(--space-sm);
+  }
+}

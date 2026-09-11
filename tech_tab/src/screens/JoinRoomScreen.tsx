@@ -119,6 +119,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
+      paddingTop:40,
     height: 64,
     flexDirection: 'row',
     alignItems: 'center',

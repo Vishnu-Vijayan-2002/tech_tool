@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -8,19 +8,15 @@ import {
   Pressable,
 } from 'react-native';
 
-import {
-  connectWebSocket,
-  sendMessage,
-  disconnectWebSocket,
-} from '../services/websocket';
-
 type CreateRoomScreenProps = {
   onBack: () => void;
+  onCreateRoom: (roomCode: string) => void;
   onStartSession: () => void;
 };
 
 function generateRoomCode() {
-  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const characters =
+    'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
   let code = '';
 
@@ -37,59 +33,12 @@ function generateRoomCode() {
 
 function CreateRoomScreen({
   onBack,
+  onCreateRoom,
   onStartSession,
 }: CreateRoomScreenProps) {
-  const [roomCode] = useState(generateRoomCode());
-
-  const [connectionStatus, setConnectionStatus] =
-    useState('Waiting for laptop...');
-
-  useEffect(() => {
-    connectWebSocket(
-      data => {
-        console.log('Server message:', data);
-
-        if (data.type === 'client-joined') {
-          setConnectionStatus('Laptop connected');
-        }
-      },
-
-      () => {
-        console.log(
-          'Create Room: WebSocket connected',
-        );
-
-        sendMessage({
-          type: 'create-room',
-          roomCode,
-        });
-      },
-
-      () => {
-        console.log(
-          'Create Room: WebSocket disconnected',
-        );
-
-        setConnectionStatus('Disconnected');
-      },
-    );
-
-    return () => {
-      disconnectWebSocket();
-    };
-  }, [roomCode]);
-
-  const handleStartSession = () => {
-    console.log(
-      'START SESSION BUTTON PRESSED',
-    );
-
-    console.log(
-      'Navigating to SESSION SELECT',
-    );
-
-    onStartSession();
-  };
+  const [roomCode] = useState(
+    generateRoomCode(),
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -98,14 +47,14 @@ function CreateRoomScreen({
         backgroundColor="#F8FAFC"
       />
 
-      {/* HEADER */}
-
-      <View style={styles.header}>
+      <View  style={styles.header}>
         <Pressable
           style={styles.backButton}
           onPress={onBack}
         >
-          <Text style={styles.backText}>‹</Text>
+          <Text style={styles.backText}>
+            ‹
+          </Text>
         </Pressable>
 
         <Text style={styles.headerTitle}>
@@ -115,11 +64,11 @@ function CreateRoomScreen({
         <View style={styles.headerSpace} />
       </View>
 
-      {/* CONTENT */}
-
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>＋</Text>
+          <Text style={styles.icon}>
+            ＋
+          </Text>
         </View>
 
         <Text style={styles.title}>
@@ -130,8 +79,6 @@ function CreateRoomScreen({
           Share this room code with the computer
           you want to connect to.
         </Text>
-
-        {/* ROOM CODE */}
 
         <View style={styles.codeBox}>
           <Text style={styles.codeLabel}>
@@ -144,29 +91,49 @@ function CreateRoomScreen({
         </View>
 
         <Text style={styles.info}>
-          Enter this code on the TeachSync computer
-          display to connect.
+          Enter this code on the TeachSync
+          computer display to connect.
         </Text>
 
-        {/* CONNECTION */}
+<Pressable
+  style={styles.button}
+  onPress={() => {
+    console.log('');
+    console.log(
+      '========================================',
+    );
+    console.log(
+      '[CREATE SCREEN] START SESSION PRESSED',
+    );
+    console.log(
+      '[CREATE SCREEN] Room code:',
+      roomCode,
+    );
+    console.log(
+      '[CREATE SCREEN] Calling onCreateRoom()...',
+    );
 
-        <Text style={styles.connectionStatus}>
-          {connectionStatus}
-        </Text>
+    onCreateRoom(roomCode);
 
-        {/* START SESSION */}
+    console.log(
+      '[CREATE SCREEN] Calling onStartSession()...',
+    );
 
-        <Pressable
-          style={styles.button}
-          onPress={handleStartSession}
-        >
-          <Text style={styles.buttonText}>
-            Start Session
-          </Text>
-        </Pressable>
+    onStartSession();
+
+    console.log(
+      '[CREATE SCREEN] DONE',
+    );
+    console.log(
+      '========================================',
+    );
+  }}
+>
+  <Text style={styles.buttonText}>
+    Start Session
+  </Text>
+</Pressable>
       </View>
-
-      {/* FOOTER */}
 
       <Text style={styles.footer}>
         TeachSync • Secure room connection
@@ -182,6 +149,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
+      paddingTop:40,
     height: 64,
     flexDirection: 'row',
     alignItems: 'center',
@@ -282,14 +250,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: '#64748B',
     textAlign: 'center',
-    marginBottom: 15,
-  },
-
-  connectionStatus: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#4F46E5',
-    marginBottom: 20,
+    marginBottom: 25,
   },
 
   button: {

@@ -1,4 +1,8 @@
-import React, {useState} from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import RoomScreen from './src/screens/RoomScreen';
@@ -7,6 +11,12 @@ import JoinRoomScreen from './src/screens/JoinRoomScreen';
 import SessionSelectScreen from './src/screens/SessionSelectScreen';
 import TeachingWorkspaceScreen from './src/screens/TeachingWorkspaceScreen';
 import BoardSessionScreen from './src/screens/BoardSessionScreen';
+
+import {
+  connectWebSocket,
+  sendMessage,
+  disconnectWebSocket,
+} from './src/services/websocket';
 
 function App() {
   const [screen, setScreen] = useState<
@@ -19,26 +29,78 @@ function App() {
     | 'board'
   >('welcome');
 
-  console.log('CURRENT SCREEN:', screen);
+  const [roomCode, setRoomCode] =
+    useState<string | null>(null);
 
-  // =========================================
-  // 1. WELCOME
-  // =========================================
+  const [webSocketReady, setWebSocketReady] =
+    useState(false);
+
+  const roomCreatedRef = useRef(false);
+
+  /* =========================================================
+     GLOBAL WEBSOCKET
+     ========================================================= */
+
+  useEffect(() => {
+    console.log(
+      '[APP] Starting global WebSocket...',
+    );
+
+    connectWebSocket(
+      data => {
+        console.log(
+          '[APP] GLOBAL WEBSOCKET MESSAGE:',
+          data,
+        );
+      },
+
+      () => {
+        console.log(
+          '[APP] GLOBAL WEBSOCKET CONNECTED',
+        );
+
+        setWebSocketReady(true);
+      },
+
+      () => {
+        console.log(
+          '[APP] GLOBAL WEBSOCKET DISCONNECTED',
+        );
+
+        setWebSocketReady(false);
+      },
+    );
+
+    return () => {
+      console.log(
+        '[APP] Cleaning up WebSocket',
+      );
+
+      disconnectWebSocket();
+    };
+  }, []);
+
+  /* =========================================================
+     WELCOME
+     ========================================================= */
 
   if (screen === 'welcome') {
     return (
       <WelcomeScreen
         onGetStarted={() => {
-          console.log('WELCOME → ROOM');
+          console.log(
+            '[NAV] WELCOME → ROOM',
+          );
+
           setScreen('room');
         }}
       />
     );
   }
 
-  // =========================================
-  // 2. ROOM
-  // =========================================
+  /* =========================================================
+     ROOM
+     ========================================================= */
 
   if (screen === 'room') {
     return (
@@ -47,20 +109,30 @@ function App() {
           setScreen('welcome');
         }}
         onCreateRoom={() => {
-          console.log('ROOM → CREATE ROOM');
+          console.log(
+            '[NAV] ROOM → CREATE ROOM',
+          );
+
+          roomCreatedRef.current = false;
+
+          setRoomCode(null);
+
           setScreen('createRoom');
         }}
         onJoinRoom={() => {
-          console.log('ROOM → JOIN ROOM');
+          console.log(
+            '[NAV] ROOM → JOIN ROOM',
+          );
+
           setScreen('joinRoom');
         }}
       />
     );
   }
 
-  // =========================================
-  // 3. CREATE ROOM
-  // =========================================
+  /* =========================================================
+     CREATE ROOM
+     ========================================================= */
 
   if (screen === 'createRoom') {
     return (
@@ -68,40 +140,146 @@ function App() {
         onBack={() => {
           setScreen('room');
         }}
+
+        onCreateRoom={code => {
+          const normalizedCode =
+            code.trim().toUpperCase();
+
+          console.log('');
+          console.log(
+            '========================================',
+          );
+          console.log(
+            '[ROOM CREATE] MOBILE CREATE ROOM',
+          );
+          console.log(
+            '[ROOM CREATE] Code:',
+            normalizedCode,
+          );
+          console.log(
+            '[ROOM CREATE] WebSocket ready:',
+            webSocketReady,
+          );
+          console.log(
+            '========================================',
+          );
+
+          setRoomCode(normalizedCode);
+
+          /* Prevent duplicate registration */
+
+          if (roomCreatedRef.current) {
+            console.log(
+              '[ROOM CREATE] Room already registered:',
+              normalizedCode,
+            );
+
+            return;
+          }
+
+          /*
+            IMPORTANT:
+
+            Mark as created before sending so the button
+            cannot register the same room twice.
+          */
+
+          roomCreatedRef.current = true;
+
+          const message = {
+            type: 'create-room',
+            roomCode: normalizedCode,
+          };
+
+          console.log(
+            '[ROOM CREATE] Sending:',
+            message,
+          );
+
+          const sent = sendMessage(message);
+
+          console.log(
+            '[ROOM CREATE] sendMessage result:',
+            sent,
+          );
+
+          if (!sent) {
+            console.error(
+              '[ROOM CREATE] FAILED - mobile WebSocket is not connected',
+            );
+
+            roomCreatedRef.current = false;
+          }
+        }}
+
         onStartSession={() => {
-          console.log('CREATE ROOM → SESSION SELECT');
+          console.log(
+            '[NAV] CREATE ROOM → SESSION SELECT',
+          );
+
           setScreen('sessionSelect');
         }}
       />
     );
   }
 
-  // =========================================
-  // 4. SESSION SELECT
-  // =========================================
+  /* =========================================================
+     SESSION SELECT
+     ========================================================= */
 
   if (screen === 'sessionSelect') {
     return (
       <SessionSelectScreen
         onBack={() => {
-          console.log('SESSION SELECT → CREATE ROOM');
+          console.log(
+            '[NAV] SESSION SELECT → CREATE ROOM',
+          );
+
           setScreen('createRoom');
         }}
+
         onPdfSession={() => {
-          console.log('SESSION SELECT → PDF');
+          console.log(
+            '[SESSION] Starting PDF session',
+          );
+
+          const sent = sendMessage({
+            type: 'session-start',
+            sessionType: 'pdf',
+          });
+
+          console.log(
+            '[SESSION] PDF start sent:',
+            sent,
+          );
+
           setScreen('workspace');
         }}
+
         onBoardSession={() => {
-          console.log('SESSION SELECT → BOARD');
+          console.log(
+            '[SESSION] Starting BOARD session',
+          );
+
+          const sent = sendMessage({
+            type: 'session-start',
+            sessionType: 'board',
+          });
+
+          console.log(
+            '[SESSION] BOARD start sent:',
+            sent,
+          );
+
           setScreen('board');
         }}
       />
     );
   }
 
-  // =========================================
-  // 5. JOIN ROOM
-  // =========================================
+  /* =========================================================
+     JOIN ROOM
+     ========================================================= */
 
   if (screen === 'joinRoom') {
     return (
@@ -109,37 +287,50 @@ function App() {
         onBack={() => {
           setScreen('room');
         }}
-        onJoinRoom={roomCode => {
-          console.log('Joining room:', roomCode);
+        onJoinRoom={code => {
+          console.log(
+            '[JOIN] Joining room:',
+            code,
+          );
+
+          setRoomCode(
+            code.trim().toUpperCase(),
+          );
         }}
       />
     );
   }
 
-  // =========================================
-  // 6. PDF SESSION
-  // =========================================
+  /* =========================================================
+     PDF
+     ========================================================= */
 
   if (screen === 'workspace') {
     return (
       <TeachingWorkspaceScreen
         onBack={() => {
-          console.log('PDF → SESSION SELECT');
+          console.log(
+            '[NAV] PDF → SESSION SELECT',
+          );
+
           setScreen('sessionSelect');
         }}
       />
     );
   }
 
-  // =========================================
-  // 7. BOARD SESSION
-  // =========================================
+  /* =========================================================
+     BOARD
+     ========================================================= */
 
   if (screen === 'board') {
     return (
       <BoardSessionScreen
         onBack={() => {
-          console.log('BOARD → SESSION SELECT');
+          console.log(
+            '[NAV] BOARD → SESSION SELECT',
+          );
+
           setScreen('sessionSelect');
         }}
       />

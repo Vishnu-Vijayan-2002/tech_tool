@@ -47,7 +47,7 @@ function SessionSelectScreen({
 
       <View style={styles.content}>
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>▣</Text>
+          <Text style={styles.icon}>T</Text>
         </View>
 
         <Text style={styles.title}>
@@ -162,11 +162,13 @@ function SessionSelectScreen({
 
 const styles = StyleSheet.create({
   container: {
+
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
 
   header: {
+      paddingTop:40,
     height: 64,
     flexDirection: 'row',
     alignItems: 'center',

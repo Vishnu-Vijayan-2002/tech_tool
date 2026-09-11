@@ -1,4 +1,4 @@
-const SERVER_URL = 'ws://10.105.184.98:8080';
+const WS_URL = 'wss://tech-tool.onrender.com';
 
 let socket: WebSocket | null = null;
 
@@ -19,11 +19,11 @@ export function connectWebSocket(
   onOpen?: () => void,
   onClose?: () => void,
 ) {
-  console.log('');
-  console.log('========================================');
-  console.log('[WS] connectWebSocket() called');
-  console.log('[WS] Server:', SERVER_URL);
-  console.log('========================================');
+//   console.log('');
+//   console.log('========================================');
+//   console.log('[WS] connectWebSocket() called');
+//   console.log('[WS] Server:', SERVER_URL);
+//   console.log('========================================');
 
   messageHandler = onMessage;
 
@@ -64,7 +64,7 @@ export function connectWebSocket(
 
   console.log('[WS] Creating new WebSocket...');
 
-  socket = new WebSocket(SERVER_URL);
+socket = new WebSocket(WS_URL);
 
   /* =========================================================
      OPEN
@@ -74,7 +74,7 @@ export function connectWebSocket(
     console.log('');
     console.log('========================================');
     console.log('[WS] MOBILE SOCKET CONNECTED');
-    console.log('[WS] Server:', SERVER_URL);
+    console.log('[WS] Server:', WS_URL );
     console.log('========================================');
 
     /* Notify App */

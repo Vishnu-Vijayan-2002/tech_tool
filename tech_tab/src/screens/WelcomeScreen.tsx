@@ -6,13 +6,16 @@ import {
   Text,
   View,
   Pressable,
+  Image,
 } from 'react-native';
 
 type WelcomeScreenProps = {
   onGetStarted: () => void;
 };
 
-function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
+function WelcomeScreen({
+  onGetStarted,
+}: WelcomeScreenProps) {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -22,20 +25,31 @@ function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
 
       <View style={styles.content}>
 
-        {/* Logo */}
-        <View style={styles.logo}>
-          <Text style={styles.logoText}>T</Text>
-        </View>
+        {/* =========================
+            TEACHSYNC LOGO
+           ========================= */}
 
-        {/* App Name */}
-        <Text style={styles.title}>TeachSync</Text>
+        <Image
+          source={require('../../assets/teachsync-logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
 
-        {/* Subtitle */}
+        {/* =========================
+            APP NAME
+           ========================= */}
+        {/* =========================
+            SUBTITLE
+           ========================= */}
+
         <Text style={styles.subtitle}>
           Interactive teaching made simple
         </Text>
 
-        {/* Description */}
+        {/* =========================
+            DESCRIPTION
+           ========================= */}
+
         <View style={styles.descriptionBox}>
           <Text style={styles.description}>
             Turn your phone into a digital teaching tablet.
@@ -43,19 +57,32 @@ function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
           </Text>
         </View>
 
-        {/* Get Started Button */}
+        {/* =========================
+            GET STARTED BUTTON
+           ========================= */}
+
         <Pressable
-          style={styles.button}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
           onPress={onGetStarted}
         >
           <Text style={styles.buttonText}>
             Get Started
           </Text>
+
+          <Text style={styles.buttonArrow}>
+            →
+          </Text>
         </Pressable>
 
       </View>
 
-      {/* Footer */}
+      {/* =========================
+          FOOTER
+         ========================= */}
+
       <Text style={styles.footer}>
         Real-time interactive teaching
       </Text>
@@ -65,10 +92,18 @@ function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  /* =========================
+     CONTAINER
+     ========================= */
+
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
   },
+
+  /* =========================
+     MAIN CONTENT
+     ========================= */
 
   content: {
     flex: 1,
@@ -77,28 +112,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
   },
 
+  /* =========================
+     LOGO
+     ========================= */
+
   logo: {
-    width: 82,
-    height: 82,
-    borderRadius: 22,
-    backgroundColor: '#4F46E5',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
+    width: 160,
+    height: 160,
+    marginBottom: 14,
   },
 
-  logoText: {
-    color: '#FFFFFF',
-    fontSize: 42,
-    fontWeight: '700',
-  },
+  /* =========================
+     APP NAME
+     ========================= */
 
   title: {
     fontSize: 34,
     fontWeight: '700',
     color: '#0F172A',
-    marginBottom: 8,
+    textAlign: 'center',
+    marginBottom: 6,
   },
+
+  /* =========================
+     SUBTITLE
+     ========================= */
 
   subtitle: {
     fontSize: 17,
@@ -107,12 +145,17 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
 
+  /* =========================
+     DESCRIPTION
+     ========================= */
+
   descriptionBox: {
+    width: '100%',
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
-    padding: 22,
+    paddingHorizontal: 22,
+    paddingVertical: 20,
     marginBottom: 32,
-    width: '100%',
   },
 
   description: {
@@ -122,12 +165,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  /* =========================
+     BUTTON
+     ========================= */
+
   button: {
     width: '100%',
     backgroundColor: '#4F46E5',
     paddingVertical: 16,
+    paddingHorizontal: 20,
     borderRadius: 14,
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+
+  buttonPressed: {
+    opacity: 0.75,
   },
 
   buttonText: {
@@ -135,6 +189,17 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
+
+  buttonArrow: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    marginLeft: 10,
+    fontWeight: '500',
+  },
+
+  /* =========================
+     FOOTER
+     ========================= */
 
   footer: {
     textAlign: 'center',
